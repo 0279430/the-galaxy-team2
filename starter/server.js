@@ -18,7 +18,7 @@ app.get('/api/characters', (req, res) => {
 app.get('/api/characters/:idx', (req, res) => {
   const index = +req.params.idx;
 
-  if (Number.isNaN(index) || !(0 <= index && idnex < characters.length)) {
+  if (Number.isNaN(index) || !(0 <= index && idnex < n)) {
     return res.status(404).json({ error: 'Character is invalid' });
   }
 
