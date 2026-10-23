@@ -9,8 +9,11 @@ let characters, n;
 app.use(express.static('public'));
 
 app.get('/api/characters', (req, res) => {
-  const searchKeywords = req.query.search.toLowerCase();
-  const found = characters.filter((character) => character.name.toLowerCase().includes(searchKeywords)).slice(0, 5);
+  const searchKeywords = (req.query.search || '').toLowerCase().trim();
+  const found = characters.filter((character) => character.name.toLowerCase().includes(searchKeywords) || String(character.id) === searchKeywords);
+  if(found.length === 0){
+    return res.status(404).json({error: 'Character nor found'});
+  }
   const list = found.map(({ id, name, image }) => ({ id, name, image }));
   res.json(list);
 });
@@ -18,7 +21,7 @@ app.get('/api/characters', (req, res) => {
 app.get('/api/characters/:idx', (req, res) => {
   const index = +req.params.idx;
 
-  if (Number.isNaN(index) || !(0 <= index && idnex < n)) {
+  if (Number.isNaN(index) || !(0 <= index && index < n)) {
     return res.status(404).json({ error: 'Character is invalid' });
   }
 

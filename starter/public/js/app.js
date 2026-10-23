@@ -30,12 +30,25 @@ const characterModal = new bootstrap.Modal(modalElement);
 const modalName = document.getElementById('modal-name');
 const modalId = document.getElementById('modal-id');
 const modalImg = document.getElementById('modal-img');
-const modalTypes = document.getElementById('modal-types');
-const modalExp = document.getElementById('modal-exp');
+const modalSpecies = document.getElementById('modal-species');
+const modalGender = document.getElementById('modal-gender');
+const modalWiki = document.getElementById('modal-wiki');
+
 const modalHeight = document.getElementById('modal-height');
-const modalWeight = document.getElementById('modal-weight');
-const modalAbilities = document.getElementById('modal-abilities');
-const modalMoves = document.getElementById('modal-moves');
+const modalMass = document.getElementById('modal-mass');
+const modalHomeworld = document.getElementById('modal-homeworld');
+
+const modalAffiliations = document.getElementById('modal-affiliations');
+const modalForceSection = document.getElementById('modal-force-section');
+const modalMasters = document.getElementById('modal-masters');
+const modalApprentices = document.getElementById('modal-apprentices');
+
+const modalDroidSection = document.getElementById('modal-droid-section');
+const modalCreator = document.getElementById('modal-creator');
+const modalModel = document.getElementById('modal-model');
+
+const modalCharacteristics = document.getElementById('modal-characteristics');
+
 const prevBtn = document.getElementById('prev-btn');
 const nextBtn = document.getElementById('next-btn');
 
@@ -56,7 +69,9 @@ async function loadCatalog(searchQuery = '') {
 
   try {
     // Define your search enpoint here.
-    const endpoint = '/api';
+    const endpoint = searchQuery
+      ? `/api/characters?search=${encodeURIComponent(searchQuery)}`
+      : `/api/characters?search=`;
 
     const response = await fetch(endpoint);
     if (response.status === 404) {
@@ -95,8 +110,8 @@ function renderCatalog(characterList, searchQuery) {
     col.className = 'col';
 
     const card = document.createElement('div');
-    card.className = 'card h-100 char-card bg-body-tertiary border-secondary-subtle text-center p-2';
-    card.addEventListener('click', () => openDetail(character.id || character.name));
+    card.className = 'card h-100 char-card text-center p-2';
+    card.addEventListener('click', () => openDetail(character.id));
 
     const img = document.createElement('img');
     img.className = 'card-img-top char-card-img mx-auto my-2';
@@ -130,7 +145,7 @@ async function openDetail(identifier) {
 
   try {
     // Set the enpoint for retrieving the information.
-    const response = await fetch(`/api`);
+    const response = await fetch(`/api/characters/${identifier}`);
 
     if (response.status === 404) {
       if (isModalOpen) characterModal.hide();
@@ -159,114 +174,182 @@ async function openDetail(identifier) {
  */
 function populateModal(character) {
   modalName.textContent = character.name || 'Unknown';
-  modalId.textContent = character.id ? `#${String(character.id).padStart(3, '0')}` : '#???';
+  modalId.textContent = character.id !== undefined ?`#${String(character.id).padStart(3, '0')}` : '#???';
 
   modalImg.src = character.image || DEFAULT_IMAGE;
   modalImg.onerror = () => { modalImg.onerror = null; modalImg.src = DEFAULT_IMAGE; };
 
-  modalExp.textContent = character.experience ?? '-';
-  modalHeight.textContent = character.height ?? '-';
-  modalWeight.textContent = character.weight ?? '-';
+  modalSpecies.textContent = `Species: ${character.species || 'Unknown'}`;
+  modalGender.textContent = `Gender: ${character.gender || 'Unknown'}`;
 
-  // Render Types
-  modalTypes.innerHTML = '';
-  (character.types || []).forEach((type) => {
-    const badge = document.createElement('span');
-    badge.className = 'badge bg-info text-uppercase px-3 py-2';
-    badge.textContent = type;
-    modalTypes.appendChild(badge);
-  });
-
-  // Render Abilities
-  modalAbilities.innerHTML = '';
-  (character.abilities || []).forEach((ability) => {
-    const badge = document.createElement('span');
-    badge.className = 'badge bg-secondary text-capitalize';
-    badge.textContent = ability;
-    modalAbilities.appendChild(badge);
-  });
-
-  // Render Moves
-  modalMoves.innerHTML = '';
-  const moves = character.moves || [];
-  if (moves.length === 0) {
-    modalMoves.innerHTML = '<span class="text-secondary small">No moves listed</span>';
+  if (character.wiki) {
+    modalWiki.href = character.wiki;
+    modalWiki.classList.remove('disabled');
+    modalWiki.textContent = 'View on Star Wars Wiki ↗';
   } else {
-    moves.forEach((move) => {
+    modalWiki.href = '#';
+    modalWiki.classList.add('disabled');
+    modalWiki.textContent = 'No Wiki Available';
+  }
+
+  modalHeight.textContent = character.height ? `${character.height} m` : '-';
+  modalMass.textContent = character.mass ? `${character.mass} kg` :'-';
+  modalHomeworld.textContent = Array.isArray(character.homeworld)
+    ? character.homeworld.join(', ')
+    : (character.homeworld || '-');
+
+  // afiliaciones
+  modalAffiliations.innerHTML = '';
+
+  const currentAff = Array.isArray(character.affiliations) ? character.affiliations : (character.affiliations ? [character.affiliations] : []);
+  const formerAff = Array.isArray(character.formerAffiliations) ? character.affiliations : (character.formerAffiliations ? [character.formerAffiliations] : []);
+  const totalAffiliations = [...new Set([...currentAff, ...formerAff])];
+  
+  if (totalAffiliations.length === 0) {
+    modalAffiliations.innerHTML = '<span class="text-secondar small">No affiliations listed</span>';
+  } else {
+    totalAffiliations.forEach((aff) => {
       const badge = document.createElement('span');
-      badge.className = 'badge border border-secondary text-body-secondary text-capitalize';
-      badge.textContent = move;
-      modalMoves.appendChild(badge);
+      badge.className = 'badge border border-warning text-warning-emphasis me-1 mb-1';
+      badge.textContent = aff;
+      modalAffiliations.appendChild(badge);
     });
   }
 
-  // Bind Circular Navigation IDs provided by Backend
-  currentPrevId = character.prevId ?? null;
-  currentNextId = character.nextId ?? null;
+  // maestros y aprendices
+  const masters = Array.isArray(character.masters) ? character.masters : (character.masters ? [character.masters] : []);
+  const apprentices = Array.isArray(character.apprentices) ? character.apprentices : (character.apprentices ? [character.apprentices] : []);
 
-  prevBtn.disabled = currentPrevId === null;
-  nextBtn.disabled = currentNextId === null;
-}
+  if (masters.length === 0 && apprentices.length === 0) {
+    modalForceSection.classList.add('d-none');
+  } else {
+    modalForceSection.classList.remove('d-none');
+    modalMasters.innerHTML = masters.length ? '<strong class="small me-1 text-secondary">Masters:</strong>' : '';
+    masters.forEach(m => {
+      const b = document.createElement('span');
+      b.className = 'badge bg-dark border text-light me-1';
+      b.textContent = m;
+      modalMasters.appendChild(b);
+    });
 
-// Event Listeners: Modal Left/Right Navigation
-prevBtn.addEventListener('click', () => {
-  if (currentPrevId !== null) openDetail(currentPrevId);
-});
-
-nextBtn.addEventListener('click', () => {
-  if (currentNextId !== null) openDetail(currentNextId);
-});
-
-// Keyboard Arrow Navigation inside Modal
-document.addEventListener('keydown', (e) => {
-  if (!isModalOpen) return;
-  if (e.key === 'ArrowLeft' && currentPrevId !== null) {
-    openDetail(currentPrevId);
-  } else if (e.key === 'ArrowRight' && currentNextId !== null) {
-    openDetail(currentNextId);
+    modalApprentices.innerHTML = apprentices.length ? '<strong class="small me-1 text-secondary">Apprentices:</strong>' : '';
+    apprentices.forEach(a => {
+      const b = document.createElement('span');
+      b.className = 'badge bg-dark border text-light me-1';
+      b.textContent = a;
+      modalApprentices.appendChild(b);
+    });
   }
-});
 
-// Event Listeners: Search & Reset
-searchForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const query = searchInput.value.trim();
-  if (query) {
+  //droides 
+  const isDroid = character.species?.toLowerCase() === 'droid' || character.manufacturer || character.model;
+  if (isDroid) {
+    modalDroidSection.classList.remove('d-none');
+    modalCreator.textContent = character.creator || character.manufacturer || '-';
+    modalModel.textContent = character.model || character.class || '-';
+  } else {
+    modalDroidSection.classList.add('d-none');
+  }
+
+  // cosas adicionales
+  modalCharacteristics.innerHTML = '';
+  const extras = [];
+  if (character.eyeColor) extras.push(`Eyes: ${character.eyeColor}`);
+  if (character.hairColor) extras.push(`Hair: ${character.hairColor}`);
+  if (character.skinColor) extras.push(`Skin: ${character.skinColor}`);
+  if (character.bornLocation) extras.push(`Born at: ${character.bornLocation}`);
+  if (character.diedLocation) extras.push(`Died at: ${character.diedLocation}`);
+  if (character.cybernetics) extras.push(`Cybernetics: ${character.cybernetics}`);
+
+  if (extras.length === 0) {
+    modalCharacteristics.innerHTML = '<span class="text-secondary small">No additional physical traits</span>';
+  } else {
+    extras.forEach(trait => {
+      const badge = document.createElement('span');
+      badge.className = 'badge border text-secondary me-1 mb-1';
+      badge.textContent = trait;
+      modalCharacteristics.appendChild(badge);
+    });
+  }
+      
+  //navegacion circular
+  currentPrevId = character.prevIndex ?? character.prevId ?? null;
+  currentNextId = character.nextIndex ?? character.nextId ?? null;
+
+  prevBtn.disabled = currentPrevId === null || currentPrevId === undefined;
+  nextBtn.disabled = currentNextId === null || currentNextId === undefined;
+  }
+
+  // botones de navegación Modal
+  prevBtn.addEventListener('click', () => {
+    if (currentPrevId !== null && currentPrevId !== undefined) openDetail(currentPrevId);
+  });
+
+  nextBtn.addEventListener('click', () => {
+    if (currentNextId !== null && currentNextId !== undefined) openDetail(currentNextId);
+  });
+
+  // navegación con flechas del teclado
+  document.addEventListener('keydown', (e) => {
+    if (!isModalOpen) return;
+    if (e.key === 'ArrowLeft' && !prevBtn.disabled) {
+      e.preventDefault();
+      prevBtn.click();
+    } else if (e.key === 'ArrowRight' && !nextBtn.disabled) {
+      e.preventDefault();
+      nextBtn.click();
+    }
+  });
+
+  // formulario de búsqueda
+  searchForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const query = searchInput.value.trim();
+    if (!query) return;
+
     clearSearchBtn.classList.remove('d-none');
     loadCatalog(query);
-  } else {
-    resetToFullCatalog();
+  });
+
+  // botones para resetear la búsqueda
+  clearSearchBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    clearSearchBtn.classList.add('d-none');
+    loadCatalog();
+  });
+
+  errorResetBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    clearSearchBtn.classList.add('d-none');
+    loadCatalog();
+  });
+
+  brandReset.addEventListener('click', (e) => {
+    e.preventDefault();
+    searchInput.value = '';
+    clearSearchBtn.classList.add('d-none');
+    loadCatalog();
+  });
+
+  // helpers de interfaz
+  function showLoading(show) {
+    loadingSpinner.classList.toggle('d-none', !show);
+    if (show) {
+      catalogSection.classList.add('d-none');
+      errorView.classList.add('d-none');
+    }
   }
-});
 
-function resetToFullCatalog() {
-  searchInput.value = '';
-  clearSearchBtn.classList.add('d-none');
+  function showError(msg) {
+    loadingSpinner.classList.add('d-none');
+    catalogSection.classList.add('d-none');
+    errorView.classList.remove('d-none');
+    errorMessage.textContent = msg;
+  }
+
+  function hideError() {
+    errorView.classList.add('d-none');
+  }
+
+  // Carga inicial del catálogo completo
   loadCatalog();
-}
-
-clearSearchBtn.addEventListener('click', resetToFullCatalog);
-errorResetBtn.addEventListener('click', resetToFullCatalog);
-brandReset.addEventListener('click', (e) => {
-  e.preventDefault();
-  resetToFullCatalog();
-});
-
-// UI Helper Functions
-function showLoading(isLoading) {
-  loadingSpinner.classList.toggle('d-none', !isLoading);
-  if (isLoading) catalogSection.classList.add('d-none');
-}
-
-function showError(msg) {
-  catalogSection.classList.add('d-none');
-  errorMessage.textContent = msg;
-  errorView.classList.remove('d-none');
-}
-
-function hideError() {
-  errorView.classList.add('d-none');
-}
-
-// Initial Boot
-document.addEventListener('DOMContentLoaded', () => loadCatalog());

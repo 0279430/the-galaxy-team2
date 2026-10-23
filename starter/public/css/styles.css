@@ -1,18 +1,76 @@
+:root {
+  /* Fondos (Materia Oscura y Polvo Galáctico) */
+  --bg-primary: #1c1308;       /* Marrón espeluznante muy oscuro (Fondo principal) */
+  --bg-secondary: #2e2112;     /* Marrón cálido profundo (Tarjetas y Contenedores) */
+  --bg-card-hover: #3e2e1a;    /* Estado hover para interactividad */
+
+  /* Textos */
+  --text-primary: #fffbef;      /* Blanco hueso estelar (Lectura principal) */
+  --text-secondary: #c9c3ac;    /* Arena claro (Subtítulos, etiquetas y metadatos) */
+
+  /* Acentos */
+  --accent-yellow: #ffea00;     /* Amarillo eléctrico (Buscador, focus y selección) */
+  --accent-amber: #ffb800;      /* Ámbar radiante (Gradients y destacar elementos) */
+  --accent-orange: #ff8c00;     /* Naranja espectral (Detalles secundarios) */
+
+  /* Bordes y UI */
+  --border-color: #4a3e2e;     /* Líneas finas marrón bronce */
+  --glow-shadow: 0 0 15px rgba(255, 234, 0, 0.35); /* Resplandor neón amarillo */
+
+  /* Tipografías */
+  --font-heading: 'Chakra Petch', sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  /* Aplicación global */
+body {
+    font-family: var(--font-body);
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    background-image: 
+      linear-gradient(rgba(255, 234, 0, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 234, 0, 0.04) 1px, transparent 1px);
+      background-size: 32px 32px;
+}
+
+h1, h2, h3, h4, h5, h6, .navbar-brand{
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  letter-spacing: 1px; /* Añade un toque futurista */
+}
+
+.navbar {
+  background-color: var(--bg-secondary) !important;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.navbar-brand {
+  color: var(--accent-yellow) !important;
+}
+
 /* Scrollable Catalog Container */
 .catalog-scroll-container {
+  background-color: var(--bg-secondary) !important;
+  border: 1px solid var(--border-color) !important;
   max-height: 72vh;
   overflow-y: auto;
 }
 
 /* Card Interactivity */
 .char-card {
+  background-color: var(--bg-primary) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary);
   cursor: pointer;
   transition: transform 0.15s ease-in-out, border-color 0.15s ease-in-out;
 }
 
 .char-card:hover {
   transform: translateY(-4px);
-  border-color: #dc3545 !important;
+  background-color: var(--bg-card-hover) !important;
+  border-color: var(--accent-yellow) !important;
+  box-shadow: var(--glow-shadow);
 }
 
 .char-card-img {
@@ -29,4 +87,66 @@
 .moves-scroll-box {
   max-height: 130px;
   overflow-y: auto;
+}
+
+.modal-stat-box {
+  background-color: var(--bg-primary) !important;
+  border: 1px solid var(--border-color) !important;
+  transition: border-color 0.2s ease;
+}
+
+.modal-stat-box small {
+  border-color: var(--accent-amber) !important;
+}
+
+.modal-stat-box span {
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-primary) !important;
+}
+
+#search-input {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-family: var(--font-heading);
+}
+
+#search-input:focus {
+  background-color: #2e2112;
+  border-color: var(--accent-yellow);
+  box-shadow: 0 0 10px rgba(255, 234, 0, 0.4);
+  color: #fff;
+}
+
+ #modal-droid-section .modal-stat-box {
+  background-color: var(--bg-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+#modal-droid-section strong {
+  
+  color: var(--accent-amber) !important;
+}
+
+#modal-droid-section span {
+  color: var(--text-primary) !important;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-amber);
 }
