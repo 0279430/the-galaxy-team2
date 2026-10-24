@@ -1,3 +1,17 @@
-# Midterm II starter
+# The Galaxy
 
-This code serves as a starter for the midterm II assignment. It includes basic server setup, static file serving, and error handling.
+Star Wars character encyclopedia built with Node + Express, using the [Starwars-api](https://akabab.github.io/starwars-api/).
+
+Live: https://the-galaxy-team2-production.up.railway.app
+
+## Run locally
+
+Requires Node 18 or newer.
+
+```sh
+cd starter
+npm install
+npm start
+```
+
+Then open http://localhost:3001
