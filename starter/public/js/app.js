@@ -202,7 +202,7 @@ function populateModal(character) {
   modalAffiliations.innerHTML = '';
 
   const currentAff = Array.isArray(character.affiliations) ? character.affiliations : (character.affiliations ? [character.affiliations] : []);
-  const formerAff = Array.isArray(character.formerAffiliations) ? character.affiliations : (character.formerAffiliations ? [character.formerAffiliations] : []);
+  const formerAff = Array.isArray(character.formerAffiliations) ? character.formerAffiliations : (character.formerAffiliations ? [character.formerAffiliations] : []);
   const totalAffiliations = [...new Set([...currentAff, ...formerAff])];
   
   if (totalAffiliations.length === 0) {
